@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>input</title>
+<meta name="generator" content="Docling HTML Serializer"/>
+<style>
+    html {
+        background-color: #f5f5f5;
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+    }
+    body {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1, h2, h3, h4, h5, h6 {
+        color: #333;
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+    }
+    h1 {
+        font-size: 2em;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.3em;
+    }
+    table {
+        border-collapse: collapse;
+        margin: 1em 0;
+        width: 100%;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+    figure {
+        margin: 1.5em 0;
+        text-align: center;
+    }
+    figcaption {
+        color: #666;
+        font-style: italic;
+        margin-top: 0.5em;
+    }
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    pre {
+        background-color: #f6f8fa;
+        border-radius: 3px;
+        padding: 1em;
+        overflow: auto;
+    }
+    code {
+        font-family: monospace;
+        background-color: #f6f8fa;
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+    }
+    pre code {
+        background-color: transparent;
+        padding: 0;
+    }
+    .formula {
+        text-align: center;
+        padding: 0.5em;
+        margin: 1em 0;
+        background-color: #f9f9f9;
+    }
+    .formula-not-decoded {
+        text-align: center;
+        padding: 0.5em;
+        margin: 1em 0;
+        background: repeating-linear-gradient(
+            45deg,
+            #f0f0f0,
+            #f0f0f0 10px,
+            #f9f9f9 10px,
+            #f9f9f9 20px
+        );
+    }
+    .page-break {
+        page-break-after: always;
+        border-top: 1px dashed #ccc;
+        margin: 2em 0;
+    }
+    .key-value-region {
+        background-color: #f9f9f9;
+        padding: 1em;
+        border-radius: 4px;
+        margin: 1em 0;
+    }
+    .key-value-region dt {
+        font-weight: bold;
+    }
+    .key-value-region dd {
+        margin-left: 1em;
+        margin-bottom: 0.5em;
+    }
+    .form-container {
+        border: 1px solid #ddd;
+        padding: 1em;
+        border-radius: 4px;
+        margin: 1em 0;
+    }
+    .form-item {
+        margin-bottom: 0.5em;
+    }
+    .image-classification {
+        font-size: 0.9em;
+        color: #666;
+        margin-top: 0.5em;
+    }
+</style>
+</head>
+<body>
+<div class='page'>
+<figure><figcaption><div class="caption">Figure 6: Examples for repetition detection on logits. Top: Sample with repetition, Bottom: Sample without repetition. Left: Highest logit score for each token in the sequence ℓ ( x ) , Center: Sliding window variance of the logits VarWin B [ ℓ ]( x ) , Right: Variance of variance from the position to the end VarEnd B [ ℓ ]( x )</div></figcaption></figure>
+<h2>5.4 Repetitions during inference</h2>
+<p>We notice that the model degenerates into repeating the same sentence over and over again. The model can not recover from this state by itself. In its simplest form, the last sentence or paragraph is repeated over and over again. We observed this behavior in 1 . 5% of pages in the test set, but the frequency increases for out-of-domain documents. Getting stuck in a repetitive loop is a known problem with Transformer-based models, when sampled with greedy decoding [44]. It can also happen that the model alternates between two sentences but sometimes changes some words, so a strict repetition detection will not suffice. Even harder to detect are predictions where the model counts its own repetitions, which sometimes happens in the references section.</p>
+<p>In general we notice this kind behavior after a mistake by the model. The model is not able to recover from the collapse.</p>
+<p>Anti-repetition augmentation Because of that we introduce a random perturbation during training. This helps the model to learn how to handle a wrongly predicted token. For each training example, there is a fixed probability that a random token will be replaced by any other randomly chosen token. This process continues until the newly sampled number is greater than a specified threshold (in this case, 10%). We did not observe a decrease in performance with this approach, but we did notice a significant reduction in repetitions. Particularly for out-of-domain documents, where we saw a 32% decline in failed page conversions.</p>
+<p>Repetition detection Since we are generating a maximum of 4096 tokens the model will stop at some point, however it is very inefficient and resource intensive to wait for a 'end of sentence' token, when none will come. To detect the repetition during inference time we look at the largest logit value ℓ i = max ℓ i of the ith token. We found that the logits after a collapse can be separated using the following heuristic. First calculate the variance of the logits for a sliding window of size B = 15</p>
+<div><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mtext>VarWin</mtext><mrow><mi>B</mi></mrow></msub><mo stretchy="false">[</mo><mi>&#x02113;</mi><mo stretchy="false">]</mo><mo stretchy="false">&#x00028;</mo><mi>x</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>B</mi></mrow></mfrac><munderover><mo>&#x02211;</mo><mrow><mi>i</mi><mo>&#x0003D;</mo><mi>x</mi></mrow><mrow><mi>x</mi><mo>&#x0002B;</mo><mi>B</mi></mrow></munderover><msup><mrow><mo stretchy="true" fence="true" form="prefix">&#x00028;</mo><msub><mi>&#x02113;</mi><mrow><mi>i</mi></mrow></msub><mo>&#x02212;</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>B</mi></mrow></mfrac><msubsup><mo>&#x02211;</mo><mrow><mi>j</mi><mo>&#x0003D;</mo><mi>x</mi></mrow><mrow><mi>x</mi><mo>&#x0002B;</mo><mi>B</mi></mrow></msubsup><msub><mi>&#x02113;</mi><mrow><mi>j</mi></mrow></msub><mo stretchy="true" fence="true" form="postfix">&#x00029;</mo></mrow><mrow><mn>2</mn></mrow></msup><mo>&#x0002E;</mo></mrow><annotation encoding="TeX">\text {VarWin} _ { B } [ \ell ] ( x ) = \frac { 1 } { B } \sum _ { i = x } ^ { x + B } \left ( \ell _ { i } - \frac { 1 } { B } \sum _ { j = x } ^ { x + B } \ell _ { j } \right ) ^ { 2 } .</annotation></math></div>
+<p>Here ℓ is the signal of logits and x the index. Using this new signal we compute variances again but this time from the point x to the end of the sequence</p>
+<div><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>\intertext</mi><mrow><mi>t</mi><mi>h</mi><mi>i</mi><mi>f</mi><mi>t</mi><mi>o</mi><mi>t</mi><mi>h</mi><mi>e</mi><mi>e</mi><mi>n</mi><mi>d</mi><mi>o</mi><mi>f</mi><mi>t</mi><mi>h</mi><mi>e</mi><mi>s</mi><mi>e</mi><mi>q</mi><mi>u</mi><mi>e</mi><mi>n</mi><mi>c</mi><mi>e</mi></mrow><msub><mtext>VarEnd</mtext><mrow><mi>B</mi></mrow></msub><mo stretchy="false">[</mo><mi>&#x02113;</mi><mo stretchy="false">&#x00028;</mo><mi>x</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>S</mi><mo>&#x02212;</mo><mi>x</mi></mrow></mfrac><munderover><mo>&#x02211;</mo><mrow><mi>i</mi><mo>&#x0003D;</mo><mi>x</mi></mrow><mrow><mi>S</mi></mrow></munderover><msup><mrow><mo stretchy="true" fence="true" form="prefix">&#x00028;</mo><msub><mtext>VarWin</mtext><mrow><mi>B</mi></mrow></msub><mo stretchy="false">[</mo><mi>&#x02113;</mi><mo stretchy="false">&#x00028;</mo><mi>i</mi><mo stretchy="false">&#x00029;</mo><mo>&#x02212;</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>S</mi><mo>&#x02212;</mo><mi>x</mi></mrow></mfrac><msubsup><mo>&#x02211;</mo><mrow><mi>j</mi><mo>&#x0003D;</mo><mi>x</mi></mrow><mrow><mi>S</mi></mrow></msubsup><msub><mtext>VarWin</mtext><mrow><mi>B</mi></mrow></msub><mo stretchy="false">[</mo><mi>&#x02113;</mi><mo stretchy="false">&#x00028;</mo><mi>i</mi><mo stretchy="false">&#x00029;</mo><msup><mo stretchy="false">&#x00029;</mo><mrow><mn>2</mn></mrow></msup><mo stretchy="true" fence="true" form="postfix">&#x00029;</mo></mrow><mrow><mn>2</mn></mrow></msup><mo>&#x0002E;</mo><mspace linebreak="newline" /><mtext>this&#x000A0;signal&#x000A0;drops&#x000A0;below&#x000A0;a&#x000A0;certain&#x000A0;threshold&#x000A0;(we&#x000A0;choose&#x000A0;6&#x000A0;7&#x000A0;5)&#x000A0;and&#x000A0;stays&#x000A0;below&#x000A0;for&#x000A0;the&#x000A0;remainder&#x000A0;of&#x000A0;the&#x000A0;sequence,&#x000A0;</mtext></mrow><annotation encoding="TeX">\intertext { t h i f t o the end of the sequence } \text {VarEnd} _ { B } [ \ell ( x ) = \frac { 1 } { S - x } \sum _ { i = x } ^ { S } \left ( \text {VarWin} _ { B } [ \ell ( i ) - \frac { 1 } { S - x } \sum _ { j = x } ^ { S } \text {VarWin} _ { B } [ \ell ( i ) ) ^ { 2 } \right ) ^ { 2 } . \\ \text {this signal drops below a certain threshold (we choose 6 7 5) and stays below for the remainder of the sequence, }</annotation></math></div>
+<p>If this signal drops below a certain threshold (we choose 6.75) and stays below for the remainder of the sequence, we classify the sequence to have repetitions.</p>
+<p>During inference time, it is obviously not possible to compute the to the end of the sequence if our goal is to stop generation at an earlier point in time. So here we work with a subset of the last 200 tokens and a half the threshold. After the generation is finished, the procedure as described above is repeated for the full sequence.</p>
+<h2>5.5 Limitations &amp; Future work</h2>
+<p>Utility The utility of the model is limited by a number of factors. First, the problem with repetitions outlined in section 5.4. The model is trained on research papers, which means it works particularly well on documents with a similar structure. However, it can still accurately convert other types of documents.</p>
+<p>Nearly every dataset sample is in English. Initial tests on a small sample suggest that the model's performance with other Latin-based languages is satisfactory, although any special characters from these languages will be replaced with the closest equivalent from the Latin alphabet. Non-Latin script languages result in instant repetitions.</p>
+<p>Generation Speed On a machine with a NVIDIA A10G graphics card with 24GB VRAM we can process 6 pages in parallel. The generation speed depends heavily on the amount of text on any given page. With an average number of tokens of ≈ 1400 we get an mean generation time of 19.5s per batch for the base model without any inference optimization. Compared to classical approaches (GROBID 10.6 PDF/s [4]) this is very slow, but it is not limited to digital-born PDFs and can correctly parse mathematical expressions.</p>
+<p>Future work The model is trained on one page at a time without knowledge about other pages in the document. This results in inconsistencies across the document. Most notably in the bibliography where the model was trained on different styles or section titles where sometimes numbers are skipped or hallucinated. Though handling each page separately significantly improves parallelization and scalability, it may diminish the quality of the merged document text.</p>
+<p>The primary challenge to solve is the tendency for the model to collapse into a repeating loop, which is left for future work.</p>
+<h2>6 Conclusion</h2>
+<p>In this work, we present Nougat, an end-to-end trainable encoder-decoder transformer based model for converting document pages to markup. We apply recent advances in visual document understanding to a novel OCR task. Distinct from related approaches, our method does not rely on OCR or embedded text representations, instead relying solely on the rasterized document page. Moreover, we have illustrated an automatic and unsupervised dataset generation process that we used to successfully train the model for scientific document to markup conversion. Overall, our approach has shown great potential for not only extracting text from digital-born PDFs but also for converting scanned papers and textbooks. We hope this work can be a starting point for future research in related domains.</p>
+<p>All the code for model evaluation, training and dataset generation can be accessed at https://github.com/ facebookresearch/nougat.</p>
+<h2>7 Acknowledgments</h2>
+<p>Thanks to Ross Taylor, Marcin Kardas, Iliyan Zarov, Kevin Stone, Jian Xiang Kuan, Andrew Poulton and Hugo Touvron for their valuable discussions and feedback.</p>
+<p>Thanks to Faisal Azhar for the support throughout the project.</p>
+<h2>References</h2>
+<ol>
+<li style="list-style-type: '[1] ';">Sebastian Spiegler. Statistics of the Common Crawl Corpus 2012, June 2013. URL https://docs.google.com/file/d/ 1 9698uglerxB9nAglvaHkEgU-iZNm1TvVGuCW7245-WGvZq47teNpb uL5N9.</li>
+</ol>
+</div>
+</body>
+</html>
