@@ -1,0 +1,22 @@
+name: docling_env
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  # CUDA 12.1 toolchain for PyTorch
+  - pytorch=2.5.1=py3.11_cuda12.1_cudnn*_*   # exact CUDA build
+  - pytorch-cuda=12.1
+  # keep torchvision paired to torch 2.5.1
+  - pip
+  - pip:
+      - docling==2.57.0
+      - transformers>=4.46,<5
+      - huggingface_hub>=0.25
+      - accelerate
+      - safetensors
+      - pillow==11.2.0
+      - markdown>=3.5
+      - rapidocr>=1.3
